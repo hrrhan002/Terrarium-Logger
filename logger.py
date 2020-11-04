@@ -34,7 +34,15 @@ def print_head():
 def print_stop():
     pass
 
-# Convert time in milliseconds to a list [hh,mm,ss]
+# Get current time in form [hh,mm,ss]
+def time_now():
+    pass
+
+# Convert time as [hh,mm,ss] to milliseconds
+def time_to_ms():
+    pass
+
+# Convert time in milliseconds to [hh,mm,ss]
 def ms_to_time():
     pass
 
