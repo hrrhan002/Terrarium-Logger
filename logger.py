@@ -30,6 +30,14 @@ def print_log():
 def print_head():
     pass
 
+# Display end logging message
+def print_stop():
+    pass
+
+# Convert time in milliseconds to a list [hh,mm,ss]
+def ms_to_time():
+    pass
+
 # Toggle sampling rate (button callback)
 def toggle_sample_rate():
     pass
@@ -53,4 +61,3 @@ if __name__ == "__main__":
         print(e)
     finally:
         GPIO.cleanup()
-
