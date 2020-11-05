@@ -18,17 +18,41 @@ from time import time
 from datetime import datetime
 
 # Global variables
+chan = None # SPI channel
+adc_thread = None # thread for the ADC reading function
+temp = None # temperature value read from ADC
 
 # Pins
 
 # Setup peripherals (ADC, EEPROM, buttons)
 def setup():
+    global chan
+    
+    # Setup ADC
+    spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI) # create the spi bus
+    cs = digitalio.DigitalInOut(board.D5) # create the cs (chip select)
+    mcp = MCP.MCP3008(spi, cs) # create the mcp object
+    chan = AnalogIn(mcp, MCP.P1) # create an analog input channel on pin 1
+
     # Setup EEPROM
     eeprom = ES2EEPROMUtils.ES2EEPROM()
 
-# Get reading from ADC and convert to temperature (threaded)
+# Get reading from ADC, convert to temperature, call print_log (threaded)
 def read_temp():
-    pass
+    global chan, thread, temp
+    
+    adc_thread = threading.Timer(5, read_temp) # execute every <interval> seconds
+    adc_thread.daemon = True # Stop thread if program stops
+    adc_thread.start()
+    
+    # Calculate temp
+    # From datasheet: Vout = Tc * Ta + V0
+    # => Ta = (Vout - V0) / Tc
+    Tc = 10.0 # temp coeff from datasheet
+    V0 = 0.5 # [V] Vout at T=0C from datasheet
+    temp = (chan.voltage - V0)/Tc
+    
+    print_log()
 
 # Store latest log entry in EEPROM (& ensure only 20 stored)
 def store_log(time, systime, temp):
