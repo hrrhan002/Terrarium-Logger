@@ -62,7 +62,6 @@ def store_log(time, systime, temp):
     
     # Write updated idx back
     eeprom.write_byte(0,idx)
-    
 
 # Display the latest log entry of temperature data
 def print_log():
@@ -70,10 +69,6 @@ def print_log():
 
 # Display column headings
 def print_head():
-    pass
-
-# Display end logging message
-def print_stop():
     pass
 
 # Get current time in form [hh,mm,ss]
@@ -89,15 +84,16 @@ def time_to_ms(tm):
 def ms_to_time(ms):
     return [(ms/3600000)%24, (ms/60000)%60, (ms/1000)%60]
 
-# Toggle sampling rate (button callback)
-def toggle_sample_rate():
-    pass
-
 # Enable/disable sampling (button callback)
 def toggle_sampling():
+    pass
+
+# Clear console and print stop logging message
+def clear_log():
+    pass
 
 # Clear stored logs in EEPROM
-def clear_log():
+def clear_mem():
     eeprom.clear(240) # clear 60*4 registers
 
 # Main
