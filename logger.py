@@ -36,6 +36,10 @@ def setup():
 
     # Setup EEPROM
     eeprom = ES2EEPROMUtils.ES2EEPROM()
+    
+     # Setup button
+    GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP) # set button on pin18 as input with pullup resistor
+    GPIO.add_event_detect(24, GPIO.FALLING, callback=toggle_sampling, bouncetime=200) # set callback & debounce
 
 # Get reading from ADC, convert to temperature, call print_log (threaded)
 def read_temp():
@@ -110,11 +114,19 @@ def ms_to_time(ms):
 
 # Enable/disable sampling (button callback)
 def toggle_sampling():
-    pass
+    global adc_thread
+
+    if adc_thread is not None: # (if it's None, main hasn't started it yet, just wait)
+        if adc_thread.is_alive(): # thread is running
+            adc_thread.cancel() # cancel thread
+            clear_log()
+        else: # thread is not running
+            print_head() # print header
+            read_temp() # start thread up again            
 
 # Clear console and print stop logging message
 def clear_log():
-    pass
+    _ = os.system('clear') # clear console
 
 # Clear stored logs in EEPROM
 def clear_mem():
