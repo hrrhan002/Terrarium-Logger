@@ -22,8 +22,6 @@ chan = None # SPI channel
 adc_thread = None # thread for the ADC reading function
 temp = None # temperature value read from ADC
 
-# Pins
-
 # Setup peripherals (ADC, EEPROM, buttons)
 def setup():
     global chan
@@ -94,24 +92,35 @@ def store_log(time, systime, temp):
 
 # Display the latest log entry of temperature data
 def print_log():
-    pass
+    global temp
+    dt = time_now()
+    st = time() - t0
+    st = ms_to_time(st)
+    print("{0}\t{1}\t{2} C".format(time_str(dt), time_str(st), temp))
 
 # Display column headings
 def print_head():
-    pass
+    print("Time\t\tSys Timer\tTemp")
 
-# Get current time in form [hh,mm,ss]
+# Get current time in form [h,m,s]
 def time_now():
     time = datetime.now()
     return [time.hour, time.minute, time.second]
 
-# Convert time as [hh,mm,ss] to milliseconds
+# Convert time as [h,m,s] to milliseconds
 def time_to_ms(tm):
     return 3600000*tm[0] + 60000*tm[1] + 1000*tm[2]
 
-# Convert time in milliseconds to a list [hh,mm,ss]
+# Convert time in milliseconds to a list [h,m,s]
 def ms_to_time(ms):
     return [(ms/3600000)%24, (ms/60000)%60, (ms/1000)%60]
+
+# Format time [h,m,s] to hh:mm:ss
+def time_str(tm):
+    h = ("0"+str(tm[0])) if (tm[0]<10) else str(tm[0]) # hour
+    m = ("0"+str(tm[1])) if (tm[1]<10) else str(tm[1]) # minute
+    s = ("0"+str(tm[2])) if (tm[2]<10) else str(tm[2]) # second
+    return h+":"+m+":"+s
 
 # Enable/disable sampling (button callback)
 def toggle_sampling():
@@ -128,6 +137,7 @@ def toggle_sampling():
 # Clear console and print stop logging message
 def clear_log():
     _ = os.system('clear') # clear console
+    print("Logging suspended\n")
 
 # Clear stored logs in EEPROM
 def clear_mem():
@@ -136,8 +146,12 @@ def clear_mem():
 # Main
 if __name__ == "__main__":
     try:
-
+      setup() # setup io
+      t0 = time() # start sys timer
+      print_head() # print header
+      read_temp() # start logging
     except Exception as e:
         print(e)
     finally:
         GPIO.cleanup()
+
