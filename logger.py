@@ -57,6 +57,7 @@ def read_temp():
     temp = (chan.voltage - V0)/Tc
     
     print_log()
+    store_log()
 
 # Store latest log entry in EEPROM (& ensure only 20 stored)
 def store_log(time, systime, temp):
@@ -140,4 +141,3 @@ if __name__ == "__main__":
         print(e)
     finally:
         GPIO.cleanup()
-
