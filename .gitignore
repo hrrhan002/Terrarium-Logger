@@ -6,6 +6,7 @@ ganttchart.html
 
 # Images
 diagrams/*.png
+testing/*.png
 
-# And flow chart for now
-diagrams/flowdiagram.drawio
+# Misc
+testing/method.txt
