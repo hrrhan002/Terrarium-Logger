@@ -51,7 +51,7 @@ def read_temp():
     # Calculate temp
     # From datasheet: Vout = Tc * Ta + V0
     # => Ta = (Vout - V0) / Tc
-    Tc = 10.0 # temp coeff from datasheet
+    Tc = 0.01 # [V/degC] temp coeff from datasheet
     V0 = 0.5 # [V] Vout at T=0C from datasheet
     temp = (chan.voltage - V0)/Tc
     temp = int(temp) # convert for easier storage. if more accuracy is needed, can redesign this part
@@ -114,7 +114,7 @@ def time_now():
     time = datetime.now()
     return [time.hour, time.minute, time.second]
 
-# Convert time as [h,m,s] to milliseconds
+# Convert time as [h,m,s] to seconds
 def time_to_s(tm):
     return 3600*tm[0] + 60*tm[1] + tm[2]
 
