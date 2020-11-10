@@ -16,11 +16,13 @@ import threading
 import os
 from time import time
 from datetime import datetime
+from colorama import Fore, Back, Style
 
 # Global variables
 chan = None # SPI channel
 adc_thread = None # thread for the ADC reading function
 temp = None # temperature value read from ADC
+subzero = False # is the temperature below 0degC
 eeprom = None # EEPROM
 
 # Setup peripherals (ADC, EEPROM, buttons)
@@ -42,9 +44,9 @@ def setup():
 
 # Get reading from ADC, convert to temperature, call print_log (threaded)
 def read_temp():
-    global adc_thread, chan, thread, temp
+    global adc_thread, chan, thread, temp, subzero
     
-    adc_thread = threading.Timer(5, read_temp) # execute every <interval> seconds
+    adc_thread = threading.Timer(5, read_temp) # execute every 5 seconds
     adc_thread.daemon = True # Stop thread if program stops
     adc_thread.start()
     
@@ -54,7 +56,14 @@ def read_temp():
     Tc = 0.01 # [V/degC] temp coeff from datasheet
     V0 = 0.5 # [V] Vout at T=0C from datasheet
     temp = (chan.voltage - V0)/Tc
-    temp = int(temp) # convert for easier storage. if more accuracy is needed, can redesign this part
+    
+    # convert temp to int for easier storage. assume that sub zero temps are bad
+    # and integer accuracy is okay
+    if temp >= 0:
+        temp = int(temp)
+    else:
+        temp = 0
+        subzero = True
     
     print_log()
     store_log()
@@ -74,11 +83,11 @@ def store_log():
     st = int(time() - t0) # system timer - time since start of logging in seconds (int)
     
     # Read first block (1st reg) to get index:
-    idx = eeprom.read_byte(0) # read reg
+    idx = eeprom.read_byte(0) # read reg 0
     if idx<1 or idx>58: # out of bounds
         idx = 1 # start at the start (wrap if idx reached the end)
     
-    # Convert values to lists of bytes (little endian)    
+    # Convert values to lists of bytes (big endian)    
     b_dt = int_to_bytes(dt)
     b_st = int_to_bytes(st)
     b_temp = int_to_bytes(temp)
@@ -99,11 +108,17 @@ def store_log():
 
 # Display the latest log entry of temperature data
 def print_log():
-    global chan, temp
+    global temp, subzero
     dt = time_now()
     st = time() - t0
     st = s_to_time(st)
-    print("{0}\t{1}\t{2} V\t{3} C".format(time_str(dt), time_str(st), chan.voltage, temp))
+    
+    if not subzero:
+        print("{0}\t{1}\t{2} V\t{3} C".format(time_str(dt), time_str(st), chan.voltage, temp))
+    else:
+        print("{0}\t{1}\t{2} V".format(time_str(dt), time_str(st), chan.voltage), end='\t')
+        print(Fore.RED + 'SubZero')
+        print(Style.RESET_ALL,end='') # reset colors to normal
 
 # Display column headings
 def print_head():
