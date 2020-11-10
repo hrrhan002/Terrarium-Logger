@@ -1,5 +1,6 @@
-# Project brief
-EEE3095S_EEE3096S-MiniProjects2020.pdf
+# PDFs
+# (project brief, nonplagiarism declarations)
+*.pdf
 
 # Report
 report/
@@ -11,5 +12,10 @@ ganttchart.html
 diagrams/*.png
 testing/*.png
 
+# Milestone A files
+plan/
+diagrams/flowchart.drawio
+
 # Misc
+submit/
 testing/method.txt
